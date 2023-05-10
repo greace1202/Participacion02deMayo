@@ -21,21 +21,21 @@ public class MainController extends HttpServlet {
     @Override
     protected void doGet(HttpServletRequest request, HttpServletResponse response)
             throws ServletException, IOException {
-        try{
+        try {
             String op;
-            op = (request.getParameter("op") != null) ? request.getParameter("op"):"list";
+            op = (request.getParameter("op") != null) ? request.getParameter("op") : "list";
             ArrayList<Libro> lista = new ArrayList<Libro>();
             ConexionBD canal = new ConexionBD();
             Connection conn = canal.conectar();
             PreparedStatement ps;
             ResultSet rs;
-            if(op.equals("list")){
+            if (op.equals("list")) {
                 //para listar los datos
                 String sql = "select * from libros";
                 //consulta de seleccion y almacenar en una coleccion
                 ps = conn.prepareStatement(sql);
                 rs = ps.executeQuery();
-                while(rs.next()){
+                while (rs.next()) {
                     Libro lib = new Libro();
                     lib.setId(rs.getInt("id"));
                     lib.setIsbn(rs.getString("isbn"));
@@ -43,22 +43,22 @@ public class MainController extends HttpServlet {
                     lib.setCategoria(rs.getString("categoria"));
                     lista.add(lib);
                 }
-                request.setAttribute("lista",lista);
+                request.setAttribute("lista", lista);
                 //enviar al index.jsp para mostrar la informacion
                 request.getRequestDispatcher("index.jsp").forward(request, response);
             }
-            if(op.equals("nuevo")){
+            if (op.equals("nuevo")) {
                 //instanciar un objeto de la clase libro
                 Libro li = new Libro();
-                
+
                 System.out.println(li.toString());
-                
+
                 //el objeto se pone como atributo de request
-                request.setAttribute("lib",li);
+                request.setAttribute("lib", li);
                 //redireccionar a editar.jsp
                 request.getRequestDispatcher("editar.jsp").forward(request, response);
             }
-            if(op.equals("eliminar")){
+            if (op.equals("eliminar")) {
                 //obtener el id
                 int id = Integer.parseInt(request.getParameter("id"));
                 //Realizar la eliminacion en la base de datos
@@ -69,46 +69,46 @@ public class MainController extends HttpServlet {
                 //redireccionar a main controller
                 response.sendRedirect("MainController");
             }
-        }catch(SQLException ex){
-            System.out.println("Error al conectar "+ex.getMessage());
+        } catch (SQLException ex) {
+            System.out.println("Error al conectar " + ex.getMessage());
         }
     }
 
     @Override
     protected void doPost(HttpServletRequest request, HttpServletResponse response)
             throws ServletException, IOException {
-        try{
+        try {
             int id = Integer.parseInt(request.getParameter("id"));
-            System.out.println("Valor de ID "+id);
+            System.out.println("Valor de ID " + id);
             String isbn = request.getParameter("isbn");
             String titulo = request.getParameter("titulo");
             String categoria = request.getParameter("categoria");
-            
+
             Libro lib = new Libro();
             lib.setId(id);
             lib.setIsbn(isbn);
             lib.setTitulo(titulo);
             lib.setCategoria(categoria);
-            
+
             ConexionBD canal = new ConexionBD();
             Connection conn = canal.conectar();
             PreparedStatement ps;
             ResultSet rs;
-            
-            if(id == 0){
+
+            if (id == 0) {
                 //Nuevo registro
-                String sql  = "insert into libros(isbn,titulo,categoria) values(?,?,?)";
+                String sql = "insert into libros(isbn,titulo,categoria) values(?,?,?)";
                 ps = conn.prepareStatement(sql);
                 ps.setString(1, lib.getIsbn());
                 ps.setString(2, lib.getTitulo());
                 ps.setString(3, lib.getCategoria());
                 ps.executeUpdate();
-            }else{
+            } else {
                 //edicion de registro
             }
             response.sendRedirect("MainController");
-        }catch(SQLException ex){
-            System.out.println("Error en SQL "+ex.getMessage());
+        } catch (SQLException ex) {
+            System.out.println("Error en SQL " + ex.getMessage());
         }
     }
 }
